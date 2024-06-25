@@ -1,4 +1,4 @@
-# Google-Search-Enchanced
+# Google-Search-Enhanced
 Google News with AI-Generated Annotation via Gemini
 
 ## Screen Shots
