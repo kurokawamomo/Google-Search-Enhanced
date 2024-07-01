@@ -49,6 +49,9 @@
             let displayText = '✦ ';
             for (const char of summary) {
                 document.querySelector('#gemini-ticker').style.opacity = '1';
+                while (document.querySelector('#rso').classList.contains('hover')) {
+                    await delay(100);
+                }
                 displayText += char + '●';
                 targetElement.textContent = displayText;
                 await delay(2);
@@ -57,9 +60,15 @@
             }
             targetElement.textContent = displayText;
         } catch (error) {
+            document.querySelector('#gemini-ticker').style.opacity = '0';
             await delay(5000);
             console.error('Error:', error);
         }
+    };
+    
+    const throttledProcessArticle = async (article, title, url, interval) => {
+        await delay(interval);
+        return processArticle(article, title, url);
     };
 
     // ########## Ticker ##########
@@ -86,16 +95,25 @@
                 .map(result=>result.querySelector('span>a:not(.gemini-annotated)'));
         if (articles.length == 0) break;
 
-        for (const targetLink of articles) {
-            if (!targetLink) continue;
+       document.querySelector('#rso').addEventListener('mouseover', ()=>{
+           document.querySelector('#rso').classList.add('hover')
+       });
+       document.querySelector('#rso').addEventListener('mouseout', ()=>{
+           document.querySelector('#rso').classList.remove('hover')
+       });
+
+        const promises = articles.map((targetLink, i) => {
+            if (!targetLink) return Promise.resolve();
             const href = targetLink.getAttribute('href');
             const title = targetLink.querySelector('h3').textContent;
             console.log(`title: ${title}`);
             console.log(`url: ${href}`);
-            if (!href) continue;
+            if (!href) return Promise.resolve();
 
-            await processArticle(targetLink, title, href);
-        }
+            return throttledProcessArticle(targetLink, title, href, i * 5000);
+        });
+
+        await Promise.all(promises);
 
         document.querySelector('#gemini-ticker').style.opacity = '0';
     }
