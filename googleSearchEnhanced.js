@@ -1,6 +1,6 @@
 (async () => {
     const GEMINI_API_KEY = 'PASTE YOUR GOOGLE GENERATIVE LANGUAGE API KEY HERE';
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=${GEMINI_API_KEY}`;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
     const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
     // ########## Results ##########
@@ -110,7 +110,7 @@
             console.log(`url: ${href}`);
             if (!href) return Promise.resolve();
 
-            return throttledProcessArticle(targetLink, title, href, i * 5000);
+            return throttledProcessArticle(targetLink, title, href, i * 500);
         });
 
         await Promise.all(promises);
