@@ -13,7 +13,8 @@
                 body: JSON.stringify({
                     contents: [{
                         parts: [{
-                            text: `URLに対し、次の手順に従ってステップバイステップで実行してください。
+                            text: `${document.querySelector('textarea').value}について調べています。
+                            URLに対し、次の手順に従ってステップバイステップで実行してください。
                             1 URLにアクセス出来なかった場合、結果を出力しない
                             2 100字程度に学者のように具体的に要約
                             3 結果のみを出力
