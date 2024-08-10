@@ -6,11 +6,13 @@
 // @namespace  djshigel
 // @match        https://www.google.com/search*
 // @run-at       document-end
+// @grant           GM.setValue
+// @grant           GM.getValue
 // ==/UserScript==
 
 (async () => {
     let GEMINI_API_KEY = await GM.getValue("GEMINI_API_KEY") ;
-    if (!Object.keys(GEMINI_API_KEY).length) {
+    if (!GEMINI_API_KEY || !Object.keys(GEMINI_API_KEY).length) {
         GEMINI_API_KEY = window.prompt('Get Generative Language Client API key from Google AI Studio\nhttps://ai.google.dev/aistudio', '');
         await GM.setValue("GEMINI_API_KEY", GEMINI_API_KEY);
     }
