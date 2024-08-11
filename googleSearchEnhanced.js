@@ -127,7 +127,7 @@
             console.log(`url: ${href}`);
             if (!href) return Promise.resolve();
 
-            return throttledProcessArticle(targetLink, title, href, i * 500);
+            return throttledProcessArticle(targetLink, title, href, i * 1000);
         });
 
         await Promise.all(promises);
