@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Google Search Enhanced via Gemini AI
 // @description Google Search with AI-Generated Annotation via Gemini
-// @version         0.5
+// @version         0.8
 // @license         MIT
 // @namespace  djshigel
 // @match        https://www.google.com/search*
@@ -16,29 +16,46 @@
         GEMINI_API_KEY = window.prompt('Get Generative Language Client API key from Google AI Studio\nhttps://ai.google.dev/aistudio', '');
         await GM.setValue("GEMINI_API_KEY", GEMINI_API_KEY);
     }
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GEMINI_API_KEY}`;
     const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
     // ########## Results ##########
     const processArticle = async (article, title, url) => {
         try {
             document.querySelector('#gemini-ticker').style.opacity = '1';
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [{
-                            text: `${document.querySelector('textarea').value}について調べています。
-                            URLに対し、次の手順に従ってステップバイステップで実行してください。
-                            1 URLにアクセス出来なかった場合、結果を出力しない
-                            2 100字程度に学者のように具体的に要約
-                            3 結果のみを出力
-                            ${title}のURL: ${url}`
-                        }],
-                    }]
-                }),
-            });
+            const response = (new URL(location.href).searchParams.get('hl') == 'ja') ?
+                await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: `${document.querySelector('textarea').value}について調べています。
+                                URLに対し、次の手順に従ってステップバイステップで実行してください。
+                                1 URLにアクセス出来なかった場合、結果を出力しない
+                                2 200字程度に学者のように具体的に要約
+                                3 結果のみを出力
+                                ${title}のURL: ${url}`
+                            }],
+                        }]
+                    }),
+                }):
+                await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: `I'm searching about ${document.querySelector('textarea').value}.
+                                Follow the steps below to execute step by step for each URL.
+                                1 If the URL cannot be accessed, do not output the results
+                                2 Summarize in 400 characters or so like an academic
+                                3 Output only the results
+                                ${title} with URL: ${url}`
+                            }],
+                        }]
+                    }),
+                });
 
             if (!response.ok) throw new Error('Network response was not ok');
 
@@ -64,18 +81,22 @@
             article.classList.add('gemini-annotated');
 
             let displayText = '✦ ';
-            for (const char of summary) {
-                document.querySelector('#gemini-ticker').style.opacity = '1';
+            const chunkSize = 20;
+            targetElement.textContent = displayText;
+            for (let i = 0; i < summary.length; i += chunkSize) {
                 while (document.querySelector('#rso').classList.contains('hover')) {
                     await delay(100);
                 }
-                displayText += char + '●';
-                targetElement.textContent = displayText;
-                await delay(2);
-                displayText = displayText.slice(0, -1);
-                document.querySelector('#gemini-ticker').style.opacity = '0';
+                const chunk = summary.slice(i, i + chunkSize);
+                const chunkSpan = document.createElement('span');
+                chunkSpan.style.opacity = '0';
+                chunkSpan.textContent = chunk;
+                targetElement.appendChild(chunkSpan);
+                await delay(100);
+                chunkSpan.style.transition = 'opacity 1s ease-in-out';
+                chunkSpan.style.opacity = '1';
             }
-            targetElement.textContent = displayText;
+
         } catch (error) {
             document.querySelector('#gemini-ticker').style.opacity = '0';
             await delay(5000);
