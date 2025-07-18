@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        Google Search Enhanced via Gemini AI
 // @description Google Search with AI-Generated Annotation via Gemini
-// @version         0.9
+// @version         1.0
 // @license         MIT
 // @namespace  djshigel
 // @match        https://www.google.com/search*
@@ -16,7 +16,7 @@
         GEMINI_API_KEY = window.prompt('Get Generative Language Client API key from Google AI Studio\nhttps://ai.google.dev/aistudio', '');
         await GM.setValue("GEMINI_API_KEY", GEMINI_API_KEY);
     }
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-04-17:generateContent?key=${GEMINI_API_KEY}`;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
     // ########## Results ##########
